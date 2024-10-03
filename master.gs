@@ -20,6 +20,7 @@
   // Retrieve all values at once from B1 to B10 and B14 to B16
   const values = accessSheet.getRange("B1:B10").getValues().flat();
   const dhValues = accessSheet.getRange("B14:B16").getValues().flat();
+  const tlValues = accessSheet.getRange("B18:B19").getValues().flat();
 
   // Destructure the values into constants
   const [
@@ -35,8 +36,10 @@
     JWT_TOKEN_TRADE,
     DHAN_ACCESS_TOKEN,
     DHAN_CLIENT_ID,
-    DHAN_BASE_URL
-  ] = [...values, ...dhValues];
+    DHAN_BASE_URL,
+    TELEGRAM_TOKEN,
+    TELEGRAM_CHAT_ID
+  ] = [...values, ...dhValues, ...tlValues];
 
 
 function onOpen() {
@@ -61,14 +64,10 @@ function openSellingSidebar() {
   SpreadsheetApp.getUi().showSidebar(html);
 }
 
-
-const TELEGRAM_BOT_TOKEN = '7679221171:AAGfkc1inDPAZGa2pkrQ5ZldhQkhIFfVohs'; // Replace with your bot token
-const CHAT_ID = '8073725817'; // Replace with your chat ID
-
 function sendMessage(message) {
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
   const payload = {
-    chat_id: CHAT_ID,
+    chat_id: TELEGRAM_CHAT_ID,
     text: message,
     parse_mode: 'HTML'
   };
