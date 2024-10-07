@@ -1,5 +1,3 @@
-
-
 // // Example usage
 // function fetchPrices() {
 //   var optionSegment = 'NSE_FNO';
