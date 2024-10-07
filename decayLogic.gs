@@ -3,75 +3,77 @@ function rebalanceSell() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("MASTER");
   var today = new Date();
   var dayOfWeek = today.getDay(); 
+  var startTime = new Date().getTime(); // Get the start time
+  var maxDuration = 75 * 1000; // 75 seconds in milliseconds
 
   var indexName, indexNeo, strikePriceIncrement, exchangeSecurityId, exchangeSegment, exchangeSegmentNeo, productType, exchangeInstrument, optionSegment, optionInstrument, quantity;
   
   switch (dayOfWeek) {
-    case 5: // Monday
-      indexName = "MIDCPNIFTY";
-      indexNeo = "MIDCPNIFTY";
-      strikePriceIncrement = "25";
-      exchangeSecurityId = "442";
-      exchangeSegment = "IDX_I";
-      exchangeSegmentNeo = "nse_fo";
-      productType = "MARGIN";
-      exchangeInstrument = "INDEX";
-      optionSegment = "NSE_FNO";
-      optionInstrument = "OPTIDX";
-      quantity = "50";
-      break;
-    case 1: // Tuesday
-      indexName = "FINNIFTY";
-      indexNeo = "FINNIFTY";
-      strikePriceIncrement = "50";
-      exchangeSecurityId = "27";
-      exchangeSegment = "IDX_I";
-      exchangeSegmentNeo = "nse_fo";
-      productType = "MARGIN";
-      exchangeInstrument = "INDEX";
-      optionSegment = "NSE_FNO";
-      optionInstrument = "OPTIDX";
-      quantity = "25";
-      break;
-    case 2: // Wednesday
-      indexName = "BANKNIFTY";
-      indexNeo = "BANKNIFTY";
-      strikePriceIncrement = "100";
-      exchangeSecurityId = "25";
-      exchangeSegment = "IDX_I";
-      exchangeSegmentNeo = "nse_fo";
-      productType = "MARGIN";
-      exchangeInstrument = "INDEX";
-      optionSegment = "NSE_FNO";
-      optionInstrument = "OPTIDX";
-      quantity = "15";
-      break;
-    case 3: // Thursday
-      indexName = "NIFTY";
-      indexNeo = "NIFTY";
-      strikePriceIncrement = "50";
-      exchangeSecurityId = "13";
-      exchangeSegment = "IDX_I";
-      exchangeSegmentNeo = "nse_fo";
-      productType = "MARGIN";
-      exchangeInstrument = "INDEX";
-      optionSegment = "NSE_FNO";
-      optionInstrument = "OPTIDX";
-      quantity = "25";
-      break;
-    case 4: // Friday
-      indexName = "SENSEX";
-      indexNeo = "BSXOPT";
-      strikePriceIncrement = "100";
-      exchangeSecurityId = "51";
-      exchangeSegment = "IDX_I";
-      exchangeSegmentNeo = "bse_fo";
-      productType = "MARGIN";
-      exchangeInstrument = "INDEX";
-      optionSegment = "BSE_FNO";
-      optionInstrument = "OPTIDX";
-      quantity = "10";
-      break;
+    case 1: // Monday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 2: // Tuesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 3: // Wednesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 4: // Thursday
+        indexName = "SENSEX";
+        indexNeo = "BSXOPT";
+        strikePriceIncrement = "100";
+        exchangeSecurityId = "51";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "bse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "BSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "10";
+        break;
+      case 5: // Friday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
     default:
       logMessage("REBALANCE SELL: Today is not a trading day. Bye bye!");
       deleteSpecificTrigger("masterTrigger");
@@ -93,16 +95,17 @@ function rebalanceSell() {
     for (var attempt = 1; attempt <= 4; attempt++) {
 
       if (success) break;  // Stop the loop if success is achieved
+
+      var elapsedTime = new Date().getTime() - startTime;
+        if (elapsedTime > maxDuration) {
+        logMessage('⏱ Script execution time exceeded one hundred (100) seconds. Terminating.');
+        break; // Terminate the script
+      }
       
       var priceCallStoredOne = sheetData[6][3];
       var priceCallStoredTwo = sheetData[7][3];
       var pricePutStoredOne = sheetData[9][3];
       var pricePutStoredTwo = sheetData[10][3];
-
-      // var priceCallOne = getLTP(securityIdCallOne, optionSegment, optionInstrument);
-      // var priceCallTwo = getLTP(securityIdCallTwo, optionSegment, optionInstrument);
-      // var pricePutOne = getLTP(securityIdPutOne, optionSegment, optionInstrument); 
-      // var pricePutTwo = getLTP(securityIdPutTwo, optionSegment, optionInstrument); 
 
       var priceData = getMultiLTP([securityIdCallOne, securityIdCallTwo, securityIdPutOne, securityIdPutTwo], optionSegment);
 
@@ -135,20 +138,13 @@ function rebalanceSell() {
         var strikeCallOne = roundedPrice + (strikePriceIncrement * 3);
         var strikePutOne = roundedPrice - (strikePriceIncrement * 3);
 
-        // var strikeCallOneStored = sheet.getRange("D20").getValue();
-        // var strikePutOneStored = sheet.getRange("D23").getValue();
-
         var strikeCallOneStored = sheetData[6][2];
         var strikePutOneStored = sheetData[9][2];
 
         if (strikeCallOneStored == strikeCallOne || strikePutOneStored == strikePutOne) {
-          
-          // sheet.getRange("E20").setValue(priceCallOne); 
-          // sheet.getRange("E21").setValue(priceCallTwo); 
+ 
           sheet.getRange("E20:E21").setValues([[priceCallOne], [priceCallTwo]]);
 
-          // sheet.getRange("E23").setValue(pricePutOne); 
-          // sheet.getRange("E24").setValue(pricePutTwo);
           sheet.getRange("E23:E24").setValues([[pricePutOne], [pricePutTwo]]);
 
           var storedPnL = sheet.getRange("B26").getValue();
@@ -158,7 +154,7 @@ function rebalanceSell() {
           var rowData = [today, openPnL, currentPnl, openMargin, "No"];
           sheet.appendRow(rowData);
 
-          logMessage("REBALANCE SELL: Stored and current strike are the same, updated the PnL only");
+          logMessage("REBALANCE SELL: ✅ Stored and current strike are the same, updated the PnL only");
         } else {
           
           var exitSellStatus = exitSell();
@@ -185,7 +181,7 @@ function rebalanceSell() {
       }
 
       Utilities.sleep(10000);
-      logMessage("REBALANCE SELL: Attempt " + attempt + ": Open Orders PnL is " + openPnL.toFixed(2) + ", profitMargin is " + profitMargin.toFixed(2) + " & lossExit is -" + lossMargin.toFixed(2));
+      logMessage("REBALANCE SELL: Attempt " + attempt + ": Open Orders PnL is " + openPnL.toFixed(2) + ", profitMargin is " + profitMargin.toFixed(2) + " & stoplossExit is -" + lossMargin.toFixed(2));
     }
 
     if (attempt > 4 && !success) {
@@ -206,46 +202,7 @@ function rebalanceBuy() {
     var indexName, indexNeo, strikePriceIncrement, exchangeSecurityId, exchangeSegment, exchangeSegmentNeo, productType, exchangeInstrument, optionSegment, optionInstrument, quantity;
     
     switch (dayOfWeek) {
-      case 5: // Monday
-        indexName = "MIDCPNIFTY";
-        indexNeo = "MIDCPNIFTY";
-        strikePriceIncrement = "25";
-        exchangeSecurityId = "442";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "50";
-        break;
-      case 1: // Tuesday
-        indexName = "FINNIFTY";
-        indexNeo = "FINNIFTY";
-        strikePriceIncrement = "50";
-        exchangeSecurityId = "27";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "25";
-        break;
-      case 2: // Wednesday
-        indexName = "BANKNIFTY";
-        indexNeo = "BANKNIFTY";
-        strikePriceIncrement = "100";
-        exchangeSecurityId = "25";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "15";
-        break;
-      case 3: // Thursday
+      case 1: // Monday
         indexName = "NIFTY";
         indexNeo = "NIFTY";
         strikePriceIncrement = "50";
@@ -258,7 +215,33 @@ function rebalanceBuy() {
         optionInstrument = "OPTIDX";
         quantity = "25";
         break;
-      case 4: // Friday
+      case 2: // Tuesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 3: // Wednesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 4: // Thursday
         indexName = "SENSEX";
         indexNeo = "BSXOPT";
         strikePriceIncrement = "100";
@@ -270,6 +253,19 @@ function rebalanceBuy() {
         optionSegment = "BSE_FNO";
         optionInstrument = "OPTIDX";
         quantity = "10";
+        break;
+      case 5: // Friday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
         break;
       default:
 
@@ -280,10 +276,12 @@ function rebalanceBuy() {
     }
     
     // multiplying with lot size
-    var lotSize = sheet.getRange("B14").getValue();
+    var lotSize = sheet.getRange("D14").getValue();
     var quantity = quantity * lotSize;
-    var doubleQuantity = quantity * 2;
-
+    var strikeCallStored = sheet.getRange("D19").getValue();
+    var strikePutStored = sheet.getRange("D22").getValue();
+    
+    if (strikeCallStored && strikePutStored) {
     var realTimePrice = getLTP(exchangeSecurityId, exchangeSegment, exchangeInstrument);
     
     if (realTimePrice == false) {
@@ -292,57 +290,51 @@ function rebalanceBuy() {
         deleteSpecificTrigger("masterTrigger");
         return;
     }
-
+ 
     // Round the real-time price to the nearest strike price increment
     var roundedPrice = (Math.floor(realTimePrice / strikePriceIncrement)) * strikePriceIncrement;
     
     /// build logic here
 
-    // generating the strike price with the rounded price (at 8 OTM )
-    var strikeCallBreach = roundedPrice + (strikePriceIncrement * 8);
-    var strikePutBreach = roundedPrice - (strikePriceIncrement * 8);
-
-    var strikeCallStored = sheet.getRange("D19").getValue();
-    var strikePutStored = sheet.getRange("D22").getValue();
+    // generating the strike price with the rounded price (at 10 OTM )
+    var strikeCallBreach = roundedPrice + (strikePriceIncrement * 10);
+    var strikePutBreach = roundedPrice - (strikePriceIncrement * 10);
 
   if (strikeCallStored <= strikeCallBreach || strikePutStored >= strikePutBreach) {
 
-    // buying logic intiated without storing the values.
-    // fetching securityId and tradeSymbol with the rounded price (OTM + 12)
-    var strikeCall = roundedPrice + (strikePriceIncrement * 12);
-    var strikePut = roundedPrice - (strikePriceIncrement * 12);
+    // fetching securityId and tradeSymbol with the rounded price (OTM + 15)
+    var strikeCall = roundedPrice + (strikePriceIncrement * 15);
+    var strikePut = roundedPrice - (strikePriceIncrement * 15);
 
     var tradeSymbolCall = fetchTradeSymbol(indexNeo, "CE", strikeCall);
     var tradeSymbolPut = fetchTradeSymbol(indexNeo, "PE", strikePut);
     
     // placing order for FAR CALL
     
-    var orderStatusCall = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", doubleQuantity, tradeSymbolCall, "0");
+    var orderStatusCall = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", quantity, tradeSymbolCall, "0");
       
       if (orderStatusCall) { 
         
         var securityIdCall = fetchSecurityId(indexNeo, "CE", strikeCall);
         var priceCall = getLTP(securityIdCall, optionSegment, optionInstrument);
-        logMessage("CALL Buy order FAR completed.");
 
       } else {
-          logMessage("CALL Buy order FAR failed.");
-          sendMessage("CALL Buy order FAR failed.");
+          logMessage("REBALANCE BUY: CALL Buy order FAR failed.");
+          sendMessage("REBALANCE BUY: CALL Buy order FAR failed.");
           return 'CALL BUY executed FAR failed!';
       }
     // placing order for FAR PUT
 
-    var orderStatusPut = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", doubleQuantity, tradeSymbolPut, "0");
+    var orderStatusPut = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", quantity, tradeSymbolPut, "0");
       
       if (orderStatusPut) {
 
         var securityIdPut = fetchSecurityId(indexNeo, "PE", strikePut);
         var pricePut = getLTP(securityIdPut, optionSegment, optionInstrument);
-        logMessage("PUT Buy order FAR completed.");
 
       } else {
-          logMessage("PUT Buy order FAR failed.");
-          sendMessage("PUT Buy order FAR failed.");
+          logMessage("REBALANCE BUY: PUT Buy order FAR failed.");
+          sendMessage("REBALANCE BUY: PUT Buy order FAR failed.");
           return 'PUT BUY executed FAR failed!';
       }
 
@@ -351,220 +343,36 @@ function rebalanceBuy() {
       var exitBuyStatus = exitBuy();
 
       if (exitBuyStatus) {
-        logMessage("FAR BUY Orders have been exited.");
+        // logMessage("REBALANCE BUY: FAR BUY Orders have been exited.");
       } else {
-        logMessage("FAR BUY Orders exit has failed.");
-        sendMessage("FAR BUY Orders exit has failed.");
+        logMessage("REBALANCE BUY: FAR BUY Orders exit has failed.");
+        sendMessage("REBALANCE BUY: FAR BUY Orders exit has failed.");
         return 'FAR BUY Orders exit has failed!';
       }
 
       // Storing values in the MASTER SHEET after exit has completed.
     if (orderStatusCall && orderStatusPut) {
 
-      // sheet.getRange("B19").setValue(securityIdCall); 
-      // sheet.getRange("C19").setValue(tradeSymbolCall); 
-      // sheet.getRange("D19").setValue(strikeCall); 
-      // sheet.getRange("E19").setValue(priceCall); 
       sheet.getRange("B19:E19").setValues([[securityIdCall, tradeSymbolCall, strikeCall, priceCall]]);
 
-
-      // sheet.getRange("B22").setValue(securityIdPut); 
-      // sheet.getRange("C22").setValue(tradeSymbolPut); 
-      // sheet.getRange("D22").setValue(strikePut); 
-      // sheet.getRange("E22").setValue(pricePut); 
       sheet.getRange("B22:E22").setValues([[securityIdPut, tradeSymbolPut, strikePut, pricePut]]);
 
 
-      logMessage("All FAR Buy order completed.");
+      logMessage("🅱️ REBALANCE BUY: All FAR Buy order completed.");
       return 'All CALL Far executed successfully!';
     
     } else {
-      logMessage("Something went wrong with FAR Buy order.");
-      sendMessage("Something went wrong with FAR Buy order.");
+      logMessage("REBALANCE BUY: Something went wrong with FAR Buy order.");
+      sendMessage("REBALANCE BUY: Something went wrong with FAR Buy order.");
       return '🚨 Something went wrong with FAR Buy order!';
     }
 
   } else {
-    logMessage("FAR BUY is within the limits. No rebalancing required.")
-    return 'FAR BUY is within the limits. No rebalancing required.';
+    logMessage("❎ REBALANCE BUY: FAR BUY is within the limits. No rebalancing required")
+    return 'FAR BUY is within the limits. No rebalancing required';
   }
-
-}
-
-function enterBuy() {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("MASTER");
-    // Get today's date
-    var today = new Date();
-    var dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, ..., 6 = Saturday
-
-    var indexName, indexNeo, strikePriceIncrement, exchangeSecurityId, exchangeSegment, exchangeSegmentNeo, productType, exchangeInstrument, optionSegment, optionInstrument, quantity;
-    
-    switch (dayOfWeek) {
-      case 5: // Monday
-        indexName = "MIDCPNIFTY";
-        indexNeo = "MIDCPNIFTY";
-        strikePriceIncrement = "25";
-        exchangeSecurityId = "442";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "50";
-        break;
-      case 1: // Tuesday
-        indexName = "FINNIFTY";
-        indexNeo = "FINNIFTY";
-        strikePriceIncrement = "50";
-        exchangeSecurityId = "27";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "25";
-        break;
-      case 2: // Wednesday
-        indexName = "BANKNIFTY";
-        indexNeo = "BANKNIFTY";
-        strikePriceIncrement = "100";
-        exchangeSecurityId = "25";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "15";
-        break;
-      case 3: // Thursday
-        indexName = "NIFTY";
-        indexNeo = "NIFTY";
-        strikePriceIncrement = "50";
-        exchangeSecurityId = "13";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "25";
-        break;
-      case 4: // Friday
-        indexName = "SENSEX";
-        indexNeo = "BSXOPT";
-        strikePriceIncrement = "100";
-        exchangeSecurityId = "51";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "bse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "BSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "10";
-        break;
-      default:
-
-        logMessage("FAR BUY: Today is not a trading day. Bye bye!");
-
-        deleteSpecificTrigger("masterTrigger");
-        return;
-    }
-    
-    // multiplying with lot size
-    var lotSize = sheet.getRange("B14").getValue();
-    var quantity = quantity * lotSize;
-    var doubleQuantity = quantity * 2;
-
-    var realTimePrice = getLTP(exchangeSecurityId, exchangeSegment, exchangeInstrument);
-    
-    if (realTimePrice == false) {
-
-        logMessage("FAR BUY: Error fetching real-time price, examine the error logs.");
-        sendMessage("FAR BUY: Error fetching real-time price, examine the error logs.");
-        deleteSpecificTrigger("masterTrigger");
-        return;
-
-    }
-
-    // Round the real-time price to the nearest strike price increment
-    var roundedPrice = (Math.floor(realTimePrice / strikePriceIncrement)) * strikePriceIncrement;
-    
-    // fetching securityId and tradeSymbol with the rounded price (OTM + 10)
-    var strikeCall = roundedPrice + (strikePriceIncrement * 12);
-    var strikePut = roundedPrice - (strikePriceIncrement * 12);
-
-    var tradeSymbolCall = fetchTradeSymbol(indexNeo, "CE", strikeCall);
-    var tradeSymbolPut = fetchTradeSymbol(indexNeo, "PE", strikePut);
-    
-    // placing order for FAR CALL
-    
-    var orderStatusCall = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", doubleQuantity, tradeSymbolCall, "0");
-      
-      if (orderStatusCall) { 
-
-        logMessage("CALL Buy order FAR completed.");
-
-      } else {
-          logMessage("CALL Buy order FAR failed.");
-          sendMessage("CALL Buy order FAR failed.");
-          return 'CALL BUY executed FAR failed!';
-      }
-    // placing order for FAR PUT
-
-    var orderStatusPut = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", doubleQuantity, tradeSymbolPut, "0");
-      
-      if (orderStatusPut) {
-
-        logMessage("PUT Buy order FAR completed.");
-
-      } else {
-          logMessage("PUT Buy order FAR failed.");
-          sendMessage("PUT Buy order FAR failed.");
-          return 'PUT BUY executed FAR failed!';
-      }
-    
-    
-  if (orderStatusCall && orderStatusPut) {
-    
-    var securityIdCall = fetchSecurityId(indexNeo, "CE", strikeCall);
-    var securityIdPut = fetchSecurityId(indexNeo, "PE", strikePut);
-
-    var priceCall = getLTP(securityIdCall, optionSegment, optionInstrument);
-    var pricePut = getLTP(securityIdPut, optionSegment, optionInstrument);
-
-    // sheet.getRange("B19").setValue(securityIdCall); 
-    // sheet.getRange("C19").setValue(tradeSymbolCall); 
-    // sheet.getRange("D19").setValue(strikeCall); 
-    // sheet.getRange("E19").setValue(priceCall); 
-    sheet.getRange("B19:E19").setValues([[securityIdCall, tradeSymbolCall, strikeCall, priceCall]]);
-
-
-    // sheet.getRange("B22").setValue(securityIdPut); 
-    // sheet.getRange("C22").setValue(tradeSymbolPut); 
-    // sheet.getRange("D22").setValue(strikePut); 
-    // sheet.getRange("E22").setValue(pricePut); 
-    sheet.getRange("B22:E22").setValues([[securityIdPut, tradeSymbolPut, strikePut, pricePut]]);
-
-
-    logMessage("All FAR Buy order completed.");
-    return {
-        success: true,
-        message: 'All CALL Far executed successfully!'
-    };
-
-  } else {
-    logMessage("Something went wrong with FAR Buy order.");
-    sendMessage("Something went wrong with FAR Buy order.");
-     return {
-        success: false,
-        message: '🚨 Something went wrong with FAR Buy order!'
-    };
   }
 }
-// Near SELL logic for 2 strike CALL & 2 Strike PUT
 
 function enterSell(){
 
@@ -576,46 +384,7 @@ function enterSell(){
     var indexName, indexNeo, strikePriceIncrement, exchangeSecurityId, exchangeSegment, exchangeSegmentNeo, productType, exchangeInstrument, optionSegment, optionInstrument, quantity;
     
     switch (dayOfWeek) {
-      case 5: // Monday
-        indexName = "MIDCPNIFTY";
-        indexNeo = "MIDCPNIFTY";
-        strikePriceIncrement = "25";
-        exchangeSecurityId = "442";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "50";
-        break;
-      case 1: // Tuesday
-        indexName = "FINNIFTY";
-        indexNeo = "FINNIFTY";
-        strikePriceIncrement = "50";
-        exchangeSecurityId = "27";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "25";
-        break;
-      case 2: // Wednesday
-        indexName = "BANKNIFTY";
-        indexNeo = "BANKNIFTY";
-        strikePriceIncrement = "100";
-        exchangeSecurityId = "25";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "15";
-        break;
-      case 3: // Thursday
+      case 1: // Monday
         indexName = "NIFTY";
         indexNeo = "NIFTY";
         strikePriceIncrement = "50";
@@ -628,7 +397,33 @@ function enterSell(){
         optionInstrument = "OPTIDX";
         quantity = "25";
         break;
-      case 4: // Friday
+      case 2: // Tuesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 3: // Wednesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 4: // Thursday
         indexName = "SENSEX";
         indexNeo = "BSXOPT";
         strikePriceIncrement = "100";
@@ -641,9 +436,22 @@ function enterSell(){
         optionInstrument = "OPTIDX";
         quantity = "10";
         break;
+      case 5: // Friday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
       default:
 
-        logMessage("NEAR SELL: Today is not a trading day. Bye bye!");
+        logMessage("ENTER SELL: Today is not a trading day. Bye bye!");
 
         deleteSpecificTrigger("masterTrigger");
         return;
@@ -657,8 +465,8 @@ function enterSell(){
     
     if (realTimePrice == false) {
 
-        logMessage("NEAR SELL: Error fetching real-time price, examine the error logs.");
-        sendMessage("NEAR SELL: Error fetching real-time price, examine the error logs.");
+        logMessage("ENTER SELL: Error fetching real-time price, examine the error logs.");
+        sendMessage("ENTER SELL: Error fetching real-time price, examine the error logs.");
         deleteSpecificTrigger("masterTrigger");
         return;
 
@@ -698,22 +506,12 @@ function enterSell(){
     var securityIdPutOne = fetchSecurityId(indexNeo, "PE", strikePutOne);
     var securityIdPutTwo = fetchSecurityId(indexNeo, "PE", strikePutTwo);
 
-    // var priceCallOne = getLTP(securityIdCallOne, optionSegment, optionInstrument);
-    // var priceCallTwo = getLTP(securityIdCallTwo, optionSegment, optionInstrument);
-    // var pricePutOne = getLTP(securityIdPutOne, optionSegment, optionInstrument);
-    // var pricePutTwo = getLTP(securityIdPutTwo, optionSegment, optionInstrument);
-
     var priceData = getMultiLTP([securityIdCallOne, securityIdCallTwo, securityIdPutOne, securityIdPutTwo], optionSegment);
     // Extract prices into separate variables
     var priceCallOne = priceData[securityIdCallOne] || null;
     var priceCallTwo = priceData[securityIdCallTwo] || null;
     var pricePutOne = priceData[securityIdPutOne] || null;
     var pricePutTwo = priceData[securityIdPutTwo] || null;
-
-    // sheet.getRange("B20").setValue(securityIdCallOne); 
-    // sheet.getRange("C20").setValue(tradeSymbolCallOne); 
-    // sheet.getRange("D20").setValue(strikeCallOne); 
-    // sheet.getRange("E20").setValue(priceCallOne); 
     
     sheet.getRange("B20:E20").setValues([[
       securityIdCallOne, 
@@ -722,23 +520,12 @@ function enterSell(){
       priceCallOne
     ]]);
 
-
-    // sheet.getRange("B21").setValue(securityIdCallTwo); 
-    // sheet.getRange("C21").setValue(tradeSymbolCallTwo); 
-    // sheet.getRange("D21").setValue(strikeCallTwo); 
-    // sheet.getRange("E21").setValue(priceCallTwo);
-    
     sheet.getRange("B21:E21").setValues([[
       securityIdCallTwo, 
       tradeSymbolCallTwo, 
       strikeCallTwo, 
       priceCallTwo
     ]]);
-
-    // sheet.getRange("B23").setValue(securityIdPutOne); 
-    // sheet.getRange("C23").setValue(tradeSymbolPutOne); 
-    // sheet.getRange("D23").setValue(strikePutOne); 
-    // sheet.getRange("E23").setValue(pricePutOne); 
     
     sheet.getRange("B23:E23").setValues([[
       securityIdPutOne, 
@@ -746,12 +533,6 @@ function enterSell(){
       strikePutOne, 
       pricePutOne
     ]]);
-
-
-    // sheet.getRange("B24").setValue(securityIdPutTwo); 
-    // sheet.getRange("C24").setValue(tradeSymbolPutTwo); 
-    // sheet.getRange("D24").setValue(strikePutTwo); 
-    // sheet.getRange("E24").setValue(pricePutTwo); 
 
     sheet.getRange("B24:E24").setValues([[
       securityIdPutTwo, 
@@ -761,15 +542,15 @@ function enterSell(){
     ]]);
 
 
-    logMessage("All NEAR Sell order completed.");
+    logMessage("ENTER SELL: Completed");
     return {
         success: true,
         message: 'All NEAR Sell executed successfully!'
     };
 
   } else {
-    logMessage("Something went wrong with NEAR Sell order.");
-    sendMessage("Something went wrong with NEAR Sell order.");
+    logMessage("ENTER SELL: Something went wrong with order");
+    sendMessage("ENTER SELL: Something went wrong with order");
     return {
         success: false,
         message: '🚨 Something went wrong with NEAR Sell order!'
@@ -778,8 +559,7 @@ function enterSell(){
 }
 
 function exitSell() {
-
-  logMessage("Square off is Initiated.");
+  
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("MASTER");
     // Get today's date
     var today = new Date();
@@ -788,46 +568,7 @@ function exitSell() {
     var indexName, indexNeo, strikePriceIncrement, exchangeSecurityId, exchangeSegment, exchangeSegmentNeo, productType, exchangeInstrument, optionSegment, optionInstrument, quantity;
     
     switch (dayOfWeek) {
-      case 5: // Monday
-        indexName = "MIDCPNIFTY";
-        indexNeo = "MIDCPNIFTY";
-        strikePriceIncrement = "25";
-        exchangeSecurityId = "442";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "50";
-        break;
-      case 1: // Tuesday
-        indexName = "FINNIFTY";
-        indexNeo = "FINNIFTY";
-        strikePriceIncrement = "50";
-        exchangeSecurityId = "27";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "25";
-        break;
-      case 2: // Wednesday
-        indexName = "BANKNIFTY";
-        indexNeo = "BANKNIFTY";
-        strikePriceIncrement = "100";
-        exchangeSecurityId = "25";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "15";
-        break;
-      case 3: // Thursday
+      case 1: // Monday
         indexName = "NIFTY";
         indexNeo = "NIFTY";
         strikePriceIncrement = "50";
@@ -840,7 +581,33 @@ function exitSell() {
         optionInstrument = "OPTIDX";
         quantity = "25";
         break;
-      case 4: // Friday
+      case 2: // Tuesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 3: // Wednesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 4: // Thursday
         indexName = "SENSEX";
         indexNeo = "BSXOPT";
         strikePriceIncrement = "100";
@@ -853,9 +620,22 @@ function exitSell() {
         optionInstrument = "OPTIDX";
         quantity = "10";
         break;
+      case 5: // Friday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
       default:
 
-        logMessage("Today is not a trading day. Bye bye!");
+        logMessage("EXIT SELL: Today is not a trading day. Bye bye!");
 
         deleteSpecificTrigger("masterTrigger");
         return;
@@ -865,9 +645,6 @@ function exitSell() {
     var lotSize = sheet.getRange("B14").getValue();
     var quantity = quantity * lotSize;
     
-    // SQUARE OFF and Erase CALL data.
-    // var tradeSymbolCallOne = sheet.getRange("C20").getValue();
-    // var tradeSymbolCallTwo = sheet.getRange("C21").getValue(); 
     var tradeSymbols = sheet.getRange("C20:C21").getValues();
     var tradeSymbolCallOne = tradeSymbols[0][0]; // Value from C20
     var tradeSymbolCallTwo = tradeSymbols[1][0]; // Value from C21
@@ -878,20 +655,12 @@ function exitSell() {
       var orderStatusCallOne = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", quantity, tradeSymbolCallOne, "0");
       
       if (orderStatusCallOne) { 
-
-          // sheet.getRange("B20").setValue(''); 
-          // sheet.getRange("C20").setValue(''); 
-          // sheet.getRange("D20").setValue(''); 
-          // sheet.getRange("E20").setValue('');
           
           sheet.getRange("B20:E20").setValues([['', '', '', '']]);
 
-
-        logMessage("CALL Exit Sell order ONE completed.");
-
       } else {
-          logMessage("CALL Exit Sell order ONE failed.");
-          sendMessage("CALL Exit Sell order ONE failed.");
+          logMessage("EXIT SELL: CALL order ONE failed.");
+          sendMessage("EXIT SELL: CALL order ONE failed.");
           return '🚨 CALL Exit Sell executed ONE failed!';
       }
     }
@@ -901,28 +670,17 @@ function exitSell() {
       
       if (orderStatusCallTwo) { 
 
-            // sheet.getRange("B21").setValue(''); 
-            // sheet.getRange("C21").setValue(''); 
-            // sheet.getRange("D21").setValue(''); 
-            // sheet.getRange("E21").setValue(''); 
-
             sheet.getRange("B21:E21").setValues([['', '', '', '']]);
 
-
-        logMessage("CALL Exit Sell order TWO completed.");
-
       } else {
-          logMessage("CALL Exit Sell order TWO failed.");
-          sendMessage("CALL Exit Sell order TWO failed.");
+          logMessage("EXIT SELL: CALL order TWO failed.");
+          sendMessage("EXIT SELL: CALL order TWO failed.");
           return '🚨 CALL Exit Sell executed TWO failed!';
       }
       
     }
-
-
     // SQUARE OFF and Erase PUT data.
-    // var tradeSymbolPutOne = sheet.getRange("C23").getValue(); 
-    // var tradeSymbolPutTwo = sheet.getRange("C24").getValue(); 
+
     var tradeSymbols = sheet.getRange("C23:C24").getValues();
     var tradeSymbolPutOne = tradeSymbols[0][0]; // Value from C23
     var tradeSymbolPutTwo = tradeSymbols[1][0]; // Value from C24
@@ -934,19 +692,14 @@ function exitSell() {
       
       if (orderStatusPutOne) { 
 
-          // sheet.getRange("B23").setValue(''); 
-          // sheet.getRange("C23").setValue(''); 
-          // sheet.getRange("D23").setValue(''); 
-          // sheet.getRange("E23").setValue(''); 
-
           sheet.getRange("B23:E23").setValues([['', '', '', '']]);
 
 
-        logMessage("PUT Exit Sell order ONE completed.");
+        // logMessage("EXIT SELL: PUT order ONE completed.");
 
       } else {
-          logMessage("PUT Exit Sell order ONE failed.");
-          sendMessage("PUT Exit Sell order ONE failed.");
+          logMessage("EXIT SELL: PUT order ONE failed.");
+          sendMessage("EXIT SELL: PUT order ONE failed.");
           return '🚨 PUT Exit Sell executed ONE failed!';
       }
     }
@@ -956,29 +709,18 @@ function exitSell() {
       
       if (orderStatusPutTwo) { 
 
-          // sheet.getRange("B24").setValue(''); 
-          // sheet.getRange("C24").setValue(''); 
-          // sheet.getRange("D24").setValue(''); 
-          // sheet.getRange("E24").setValue(''); 
-
           sheet.getRange("B24:E24").setValues([['', '', '', '']]);
 
 
-        logMessage("PUT Exit Sell order TWO completed.");
+        // logMessage("EXIT SELL: PUT order TWO completed.");
 
       } else {
-          logMessage("PUT Exit Sell order TWO failed.");
-          sendMessage("PUT Exit Sell order TWO failed.");
+          logMessage("EXIT SELL: PUT order TWO failed.");
+          sendMessage("EXIT SELL: PUT order TWO failed.");
           return '🚨 PUT Exit Sell executed TWO failed!';
       }
       
     }
-    
-    // FINAL CHECK
-    // var tradeSymbolCallOne = sheet.getRange("C20").getValue();
-    // var tradeSymbolCallTwo = sheet.getRange("C21").getValue(); 
-    // var tradeSymbolPutOne = sheet.getRange("C23").getValue(); 
-    // var tradeSymbolPutTwo = sheet.getRange("C24").getValue(); 
     
     var tradeSymbols = sheet.getRange("C20:C24").getValues();
     var tradeSymbolCallOne = tradeSymbols[0][0]; // C20
@@ -989,14 +731,14 @@ function exitSell() {
 
     if (!tradeSymbolCallOne && !tradeSymbolCallTwo && !tradeSymbolPutOne && !tradeSymbolPutTwo) {
         /// integrate the following into existing code.
-      logMessage("Exit Sell Completed");
+      logMessage("EXIT SELL: Completed");
       return {
         success: true,
         message: 'Exit Sell executed successfully!'
       };
     } else {
-      logMessage("Something went wrong with Exit Sell order.");
-      sendMessage("Something went wrong with Exit Sell order.");
+      logMessage("EXIT SELL: Something went wrong with Exit Sell order.");
+      sendMessage("EXIT SELL: Something went wrong with Exit Sell order.");
       return {
         success: false,
         message: '🚨 Something went wrong with Exit Sell order!'
@@ -1004,9 +746,7 @@ function exitSell() {
     }
 }
 
-function exitBuy() {
-
-  logMessage("EXIT Buy is Initiated.");
+function enterBuy() {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("MASTER");
     // Get today's date
     var today = new Date();
@@ -1015,46 +755,7 @@ function exitBuy() {
     var indexName, indexNeo, strikePriceIncrement, exchangeSecurityId, exchangeSegment, exchangeSegmentNeo, productType, exchangeInstrument, optionSegment, optionInstrument, quantity;
     
     switch (dayOfWeek) {
-      case 5: // Monday
-        indexName = "MIDCPNIFTY";
-        indexNeo = "MIDCPNIFTY";
-        strikePriceIncrement = "25";
-        exchangeSecurityId = "442";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "50";
-        break;
-      case 1: // Tuesday
-        indexName = "FINNIFTY";
-        indexNeo = "FINNIFTY";
-        strikePriceIncrement = "50";
-        exchangeSecurityId = "27";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "25";
-        break;
-      case 2: // Wednesday
-        indexName = "BANKNIFTY";
-        indexNeo = "BANKNIFTY";
-        strikePriceIncrement = "100";
-        exchangeSecurityId = "25";
-        exchangeSegment = "IDX_I";
-        exchangeSegmentNeo = "nse_fo";
-        productType = "MARGIN";
-        exchangeInstrument = "INDEX";
-        optionSegment = "NSE_FNO";
-        optionInstrument = "OPTIDX";
-        quantity = "15";
-        break;
-      case 3: // Thursday
+      case 1: // Monday
         indexName = "NIFTY";
         indexNeo = "NIFTY";
         strikePriceIncrement = "50";
@@ -1067,7 +768,33 @@ function exitBuy() {
         optionInstrument = "OPTIDX";
         quantity = "25";
         break;
-      case 4: // Friday
+      case 2: // Tuesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 3: // Wednesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 4: // Thursday
         indexName = "SENSEX";
         indexNeo = "BSXOPT";
         strikePriceIncrement = "100";
@@ -1080,6 +807,184 @@ function exitBuy() {
         optionInstrument = "OPTIDX";
         quantity = "10";
         break;
+      case 5: // Friday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      default:
+
+        logMessage("ENTER BUY: Today is not a trading day. Bye bye!");
+
+        deleteSpecificTrigger("masterTrigger");
+        return;
+    }
+    
+    // multiplying with lot size
+    var lotSize = sheet.getRange("D14").getValue();
+    var quantity = quantity * lotSize;
+
+    var realTimePrice = getLTP(exchangeSecurityId, exchangeSegment, exchangeInstrument);
+    
+    if (realTimePrice == false) {
+
+        logMessage("ENTER BUY: Error fetching real-time price, examine the error logs.");
+        sendMessage("ENTER BUY: Error fetching real-time price, examine the error logs.");
+        deleteSpecificTrigger("masterTrigger");
+        return;
+
+    }
+
+    // Round the real-time price to the nearest strike price increment
+    var roundedPrice = (Math.floor(realTimePrice / strikePriceIncrement)) * strikePriceIncrement;
+    
+    // fetching securityId and tradeSymbol with the rounded price (OTM + 15)
+    var strikeCall = roundedPrice + (strikePriceIncrement * 15);
+    var strikePut = roundedPrice - (strikePriceIncrement * 15);
+
+    var tradeSymbolCall = fetchTradeSymbol(indexNeo, "CE", strikeCall);
+    var tradeSymbolPut = fetchTradeSymbol(indexNeo, "PE", strikePut);
+    
+    // placing order for FAR CALL
+    
+    var orderStatusCall = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", quantity, tradeSymbolCall, "0");
+      
+      if (orderStatusCall) { 
+
+        // logMessage("ENTER BUY: CALL order completed.");
+
+      } else {
+          logMessage("ENTER BUY: CALL order failed.");
+          sendMessage("ENTER BUY: CALL order failed.");
+          return 'CALL BUY executed FAR failed!';
+      }
+    // placing order for FAR PUT
+
+    var orderStatusPut = placeNeoOrder("B", exchangeSegmentNeo, "NRML", "MKT", quantity, tradeSymbolPut, "0");
+      
+      if (orderStatusPut) {
+
+        // logMessage("ENTER BUY: PUT order completed.");
+
+      } else {
+          logMessage("ENTER BUY: PUT order failed.");
+          sendMessage("ENTER BUY: PUT order failed.");
+          return 'PUT BUY executed FAR failed!';
+      }
+    
+    
+  if (orderStatusCall && orderStatusPut) {
+    
+    var securityIdCall = fetchSecurityId(indexNeo, "CE", strikeCall);
+    var securityIdPut = fetchSecurityId(indexNeo, "PE", strikePut);
+
+    var priceCall = getLTP(securityIdCall, optionSegment, optionInstrument);
+    var pricePut = getLTP(securityIdPut, optionSegment, optionInstrument);
+
+    sheet.getRange("B19:E19").setValues([[securityIdCall, tradeSymbolCall, strikeCall, priceCall]]);
+
+    sheet.getRange("B22:E22").setValues([[securityIdPut, tradeSymbolPut, strikePut, pricePut]]);
+
+
+    logMessage("ENTER BUY: All order completed.");
+    return {
+        success: true,
+        message: 'All CALL Far executed successfully!'
+    };
+
+  } else {
+    logMessage("ENTER BUY: Something went wrong with FAR Buy order.");
+    sendMessage("ENTER BUY: Something went wrong with FAR Buy order.");
+     return {
+        success: false,
+        message: '🚨 Something went wrong with FAR Buy order!'
+    };
+  }
+}
+
+function exitBuy() {
+
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("MASTER");
+    // Get today's date
+    var today = new Date();
+    var dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, 2 = Tuesday, ..., 6 = Saturday
+
+    var indexName, indexNeo, strikePriceIncrement, exchangeSecurityId, exchangeSegment, exchangeSegmentNeo, productType, exchangeInstrument, optionSegment, optionInstrument, quantity;
+    
+    switch (dayOfWeek) {
+      case 1: // Monday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 2: // Tuesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 3: // Wednesday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
+      case 4: // Thursday
+        indexName = "SENSEX";
+        indexNeo = "BSXOPT";
+        strikePriceIncrement = "100";
+        exchangeSecurityId = "51";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "bse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "BSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "10";
+        break;
+      case 5: // Friday
+        indexName = "NIFTY";
+        indexNeo = "NIFTY";
+        strikePriceIncrement = "50";
+        exchangeSecurityId = "13";
+        exchangeSegment = "IDX_I";
+        exchangeSegmentNeo = "nse_fo";
+        productType = "MARGIN";
+        exchangeInstrument = "INDEX";
+        optionSegment = "NSE_FNO";
+        optionInstrument = "OPTIDX";
+        quantity = "25";
+        break;
       default:
 
         logMessage("Today is not a trading day. Bye bye!");
@@ -1089,33 +994,27 @@ function exitBuy() {
     }
     
     // multiplying with lot size
-    var lotSize = sheet.getRange("B14").getValue();
+    var lotSize = sheet.getRange("D14").getValue();
     var quantity = quantity * lotSize;
-    var doubleQuantity = quantity * 2;
     
     // SQUARE OFF and Erase CALL data.
     var tradeSymbolCallOne = sheet.getRange("C19").getValue();
 
     if (tradeSymbolCallOne) {
 
-      var orderStatusCallOne = placeNeoOrder("S", exchangeSegmentNeo, "NRML", "MKT", doubleQuantity, tradeSymbolCallOne, "0");
+      var orderStatusCallOne = placeNeoOrder("S", exchangeSegmentNeo, "NRML", "MKT", quantity, tradeSymbolCallOne, "0");
       
       if (orderStatusCallOne) { 
-
-          // sheet.getRange("B19").setValue(''); 
-          // sheet.getRange("C19").setValue(''); 
-          // sheet.getRange("D19").setValue(''); 
-          // sheet.getRange("E19").setValue('');
 
           sheet.getRange("B19:E19").setValues([['', '', '', '']]);
 
 
-        logMessage("CALL Square-off order ONE completed.");
+        // logMessage("EXIT BUY: CALL order completed.");
 
       } else {
-          logMessage("CALL Exit Buy order ONE failed.");
-          sendMessage("CALL Exit Buy order ONE failed.");
-          return '🚨 CALL Exit Buy executed ONE failed!';
+          logMessage("EXIT BUY: CALL order failed.");
+          sendMessage("EXIT BUY: CALL order failed.");
+          return '🚨 CALL Exit Buy executed failed!';
       }
     }      
 
@@ -1124,30 +1023,21 @@ function exitBuy() {
 
     if (tradeSymbolPutOne) {
 
-      var orderStatusPutOne = placeNeoOrder("S", exchangeSegmentNeo, "NRML", "MKT", doubleQuantity, tradeSymbolPutOne, "0");
+      var orderStatusPutOne = placeNeoOrder("S", exchangeSegmentNeo, "NRML", "MKT", quantity, tradeSymbolPutOne, "0");
       
       if (orderStatusPutOne) { 
 
-          // sheet.getRange("B22").setValue(''); 
-          // sheet.getRange("C22").setValue(''); 
-          // sheet.getRange("D22").setValue(''); 
-          // sheet.getRange("E22").setValue(''); 
-
-          sheet.getRange("B22:E22").setValues([['', '', '', '']]);
+        sheet.getRange("B22:E22").setValues([['', '', '', '']]);
 
 
-        logMessage("PUT Exit Buy order ONE completed.");
+        // logMessage("EXIT BUY: PUT order completed.");
 
       } else {
-          logMessage("PUT Exit Buy order ONE failed.");
-          sendMessage("PUT Exit Buy order ONE failed.");
-          return '🚨 PUT Exit Buy executed ONE failed!';
+          logMessage("EXIT BUY: PUT order failed.");
+          sendMessage("EXIT BUY: PUT order failed.");
+          return '🚨 PUT Exit Buy executed failed!';
       }
     }
-
-    // FINAL CHECK
-    // var tradeSymbolCallOne = sheet.getRange("C19").getValue();
-    // var tradeSymbolPutOne = sheet.getRange("C22").getValue(); 
 
     var tradeSymbols = sheet.getRange("C19:C22").getValues();
     var tradeSymbolCallOne = tradeSymbols[0][0]; // Value from C19
@@ -1155,16 +1045,15 @@ function exitBuy() {
 
 
     if (!tradeSymbolCallOne &&!tradeSymbolPutOne) {
-        /// integrate the following into existing code.
-      logMessage("Exit Buy Completed");
+      logMessage("EXIT BUY: Exit Buy Completed");
       return {
         success: true,
         message: 'Exit Buy executed successfully!'
       };
 
     } else {
-      logMessage("Something went wrong with Exit Buy order.");
-      sendMessage("Something went wrong with Exit Buy order.");
+      logMessage("EXIT BUY: Something went wrong with Exit Buy order.");
+      sendMessage("EXIT BUY: Something went wrong with Exit Buy order.");
       return {
         success: false,
         message: '🚨 Something went wrong with Exit Buy order!'
