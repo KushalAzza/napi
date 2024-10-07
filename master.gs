@@ -1,23 +1,5 @@
-  // const accessSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("ACCESS");
-
-  // const NEO_FIN_KEY = accessSheet.getRange("B1").getValue();
-  // const PAN = accessSheet.getRange("B2").getValue();
-  // const PASSWORD = accessSheet.getRange("B3").getValue();
-  // const KOTAK_ACCESS_TOKEN = accessSheet.getRange("B4").getValue();
-  // const USER_ID = accessSheet.getRange("B5").getValue();
-  // const JWT_TOKEN_VIEW = accessSheet.getRange("B6").getValue();
-  // const SESSION_ID = accessSheet.getRange("B7").getValue();
-  // const SERVER_ID = accessSheet.getRange("B8").getValue();
-  // const OTP = accessSheet.getRange("B9").getValue();
-  // const JWT_TOKEN_TRADE = accessSheet.getRange("B10").getValue();
-  
-  // const DHAN_ACCESS_TOKEN = accessSheet.getRange("B14").getValue();
-  // const DHAN_CLIENT_ID = accessSheet.getRange("B15").getValue();
-  // const DHAN_BASE_URL = accessSheet.getRange("B16").getValue();
-
   const accessSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("ACCESS");
 
-  // Retrieve all values at once from B1 to B10 and B14 to B16
   const values = accessSheet.getRange("B1:B10").getValues().flat();
   const dhValues = accessSheet.getRange("B14:B16").getValues().flat();
   const tlValues = accessSheet.getRange("B18:B19").getValues().flat();
@@ -47,6 +29,7 @@ function onOpen() {
   ui.createMenu('Trading Terminal')
     .addItem('📈 Buying Terminal', 'openBuyingSidebar')
     .addItem('📉 Selling Terminal', 'openSellingSidebar')
+    .addItem('🛠 Setup', 'openSetupSidebar')
     .addToUi();
 }
 
@@ -60,6 +43,13 @@ function openBuyingSidebar() {
 function openSellingSidebar() {
   const html = HtmlService.createHtmlOutputFromFile('sellingSidebar')
       .setTitle('Options Selling Terminal')
+      .setWidth(300);
+  SpreadsheetApp.getUi().showSidebar(html);
+}
+
+function openSetupSidebar() {
+  const html = HtmlService.createHtmlOutputFromFile('setup')
+      .setTitle('Options Setup')
       .setWidth(300);
   SpreadsheetApp.getUi().showSidebar(html);
 }
@@ -87,3 +77,51 @@ function logMessage(message) {
     sheet.appendRow([timestamp, message]); // Append the timestamp and message
 }
 
+function clearLog() {
+  // Get the active spreadsheet
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("MASTER");
+
+  sheet.getRange("B26").setValue('0');
+  sheet.getRange("A29:E200").clearContent();
+  
+  var logSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("LOG");
+  
+  // Check if the sheet exists
+  if (logSheet) {
+    // Clear the content of the sheet
+    logSheet.clear(); // This clears all the content and formatting
+    
+    // Set the headers in the first row
+    logSheet.appendRow(["Timestamp", "Message Log"]);
+    
+    // Optional: Set the header row to bold
+    var range = logSheet.getRange("A1:B1");
+    range.setFontWeight("bold");
+    
+    // Optional: Set the background color for the header row
+    range.setBackground("#eeeeee");
+    
+  } else {
+    Logger.log("Sheet 'LOG' not found.");
+  }
+}
+
+function clearMaster() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("MASTER");
+    sheet.getRange("B19:E24").setValues([
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', '']
+      ]);
+    sheet.getRange("B6:E11").setValues([
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', ''],
+        ['', '', '', '']
+      ]);
+}
