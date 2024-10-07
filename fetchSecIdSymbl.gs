@@ -47,13 +47,13 @@ function fetchTradeSymbol(pSymbolName, pOptionType, dStrikePrice) {
   return;
 }
 
-function logSybmSecurity() {
-  var pSymbolName = "BSXOPT";
-  var pOptionType = "CE";
-  var dStrikePrice = 87700
+// function logSybmSecurity() {
+//   var pSymbolName = "BSXOPT";
+//   var pOptionType = "CE";
+//   var dStrikePrice = 87700
 
-  var securityID = fetchSecurityId(pSymbolName, pOptionType, dStrikePrice)
-  Logger.log (securityID);
-  var tradeSymbol = fetchTradeSymbol(pSymbolName, pOptionType, dStrikePrice)
-  Logger.log(tradeSymbol);
-}
+//   var securityID = fetchSecurityId(pSymbolName, pOptionType, dStrikePrice)
+//   Logger.log (securityID);
+//   var tradeSymbol = fetchTradeSymbol(pSymbolName, pOptionType, dStrikePrice)
+//   Logger.log(tradeSymbol);
+// }
