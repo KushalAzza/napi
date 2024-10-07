@@ -31,7 +31,7 @@ function getFundData() {
     'method': 'post',
     'headers': headers,
     'payload': encodedData,
-    'muteHttpExceptions': true // Optional: Allows you to see the full response in case of errors
+    'muteHttpExceptions': true 
   };
 
   // Make the HTTP POST request
