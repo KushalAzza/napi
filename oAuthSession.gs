@@ -333,7 +333,6 @@ function fetchOtpFromEmails(senderEmail) {
   }
 }
 
-
 // // Example usage
 // function fetchOTP() {
 //   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("ACCESS");
