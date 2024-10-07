@@ -63,7 +63,7 @@ function fetchAndProcessCSV(url, type) {
       // Filter based on the lExpiryDate, pSymbolName, and pOptionType
       return item.lExpiryDate <= daysLater &&
              item.lExpiryDate >= today && // Ensuring it’s not a past date
-             ['NIFTY', 'MIDCPNIFTY', 'BANKNIFTY', 'BKXOPT', 'BSXOPT', 'FINNIFTY'].includes(item.pSymbolName) &&
+             ['NIFTY', 'BANKNIFTY', 'BSXOPT'].includes(item.pSymbolName) &&
              ['PE', 'CE'].includes(item.pOptionType);
     })
     .sort((a, b) => a.lExpiryDate - b.lExpiryDate) // Sort by lExpiryDate in ascending order
