@@ -16,7 +16,7 @@ function createDailyTrigger() {
 function createMasterTrigger() {
   // Deletes all previous master triggers to avoid duplicates
   deleteSpecificTrigger("masterTrigger");
-
+  clearLog();
   // Create a new time-driven trigger that runs every minute
   ScriptApp.newTrigger("masterTrigger")
     .timeBased()
@@ -51,14 +51,14 @@ function masterTrigger() {
 
     logMessage("SCHEDULER: Today is a weekend, Master scheduler has been exited. Bye! Bye!");
 
-    return; // It's a weekend
+    return;
   }
 
   // Check if the time is after 4:00 PM
   if (hours >= 16) {
-    
+    clearData();
     deleteSpecificTrigger("masterTrigger"); // Delete only the master trigger after 4:00 PM
-    logMessage("SCHEDULER: Time is 4:00 PM, Master scheduler has been exited. Bye! Bye!");
+    logMessage("SCHEDULER: Time is 4:00 PM, cleared data and master scheduler has been exited. Bye! Bye!");
     return;
   }
 
@@ -66,9 +66,7 @@ function masterTrigger() {
   const timeString = `${hours}:${minutes}`;
   switch (timeString) {
     case "9:5":
-      
         logMessage("SCHEDULER: Scrip Master Importer & oAuthSession has started.");
-
         importCSVData();
         oAuthSession();
         // checkKeyExpiry();
@@ -105,22 +103,22 @@ function masterTrigger() {
         // intradaySession scheduler has started from 10:20 AM (620) to 15:25 PM (925)
         if (minutes % 5 === 0 && hours * 60 + minutes >= 620 && hours * 60 + minutes <= 925) {
           
-          logMessage("SCHEDULER: FAR Buy Rebalance has started");
+          // logMessage("SCHEDULER: FAR Buy Rebalance has started");
           
           rebalanceBuy();
 
-          logMessage("SCHEDULER: FAR Buy Rebalance completed for 5 minutes interval");
+          // logMessage("SCHEDULER: FAR Buy Rebalance completed for 5 minutes interval");
 
         }
 
         // intradaySession scheduler has started from 10:16 AM (616) to 15:25 PM (925)
         if (minutes % 1 === 0 && hours * 60 + minutes >= 616 && hours * 60 + minutes <= 925) {
           
-          logMessage("SCHEDULER: NEAR Sell Rebalance has started");
+          // logMessage("SCHEDULER: NEAR Sell Rebalance has started");
           
           rebalanceSell();
 
-          logMessage("SCHEDULER: NEAR Sell Rebalance has completed for 1 minutes interval.");
+          // logMessage("SCHEDULER: NEAR Sell Rebalance has completed for 1 minutes interval.");
 
         }
 
