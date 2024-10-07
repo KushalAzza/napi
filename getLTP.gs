@@ -32,6 +32,7 @@ function getMultiLTP(securityIdGroups, optionSegment) {
   var url = `${DHAN_BASE_URL}/v2/marketfeed/ltp`;
   
   // Combine all security IDs into a single array
+
   var combinedSecurityIds = [];
   for (var group of securityIdGroups) {
     combinedSecurityIds = combinedSecurityIds.concat(group.split(',').map(function(id) { return parseInt(id.trim()); }));
