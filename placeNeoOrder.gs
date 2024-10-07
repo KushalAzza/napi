@@ -1,5 +1,5 @@
 function placeNeoOrder(tt, es, pc, pt, qt, ts, pr) {
-  // var url = `https://gw-napi.kotaksecurities.com/Orders/2.0/quick/order/rule/ms/place?sId=${SERVER_ID}`;
+  var url = `https://gw-napi.kotaksecurities.com/Orders/2.0/quick/order/rule/ms/place?sId=${SERVER_ID}`;
 
   var headers = {
     'accept': 'application/json',
@@ -41,10 +41,10 @@ function placeNeoOrder(tt, es, pc, pt, qt, ts, pr) {
     return true;
 
   } catch (error) {
-    // logMessage('Error occurred: ' + error.message);
-    // sendMessage('Error occurred while placing order: ' + error.message);
-    // return false;
-    return true; // testing.
+    logMessage('Error occurred: ' + error.message);
+    sendMessage('Error occurred while placing order: ' + error.message);
+    return false;
+    // return true; // testing.
   }
 }
 
